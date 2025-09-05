@@ -1,0 +1,128 @@
+{% extends 'layouts.njk' %}
+
+{% block title %}Dependency Dashboard - {{ repo }} {% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">Dependency Dashboard for <strong>{{ repo }}</strong></h1>
+
+  <!-- Breadcrumbs -->
+<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-link" href="/">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item" aria-current="page">{{ repo }}</li>
+  </ol>
+</nav>
+
+  {% if runtime.length == 0 and dev.length == 0 %}
+    <p class="govuk-body">No dependencies need updating for {{ repo }}.</p>
+  {% endif %}
+
+  <h2 class="govuk-heading-l">Node.js Version Overview</h2>
+
+  <table class="govuk-table govuk-table--m">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header">Repo</th>
+        <th class="govuk-table__header">Current Version</th>
+        <th class="govuk-table__header">Latest LTS</th>
+        <th class="govuk-table__header">Severity</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {% for item in nodeResults %}
+        {% if item.repo == repo %}
+        <tr class="govuk-table__row
+          {% if item.node.severity == 'high' %} govuk-table__row--urgent
+          {% elif item.node.severity == 'medium' %} govuk-table__row--warning
+          {% endif %}">
+          <td class="govuk-table__cell"><code>{{ item.repo }}</code></td>
+          <td class="govuk-table__cell"><code>{{ item.node.version }}</code></td>
+          <td class="govuk-table__cell"><code>{{ item.node.latestLts }}</code></td>
+          <td class="govuk-table__cell">
+            <span class="govuk-tag govuk-tag--{{ item.node.severity }}">{{ item.node.severity | capitalize }}</span>
+          </td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2 class="govuk-heading-l">Runtime dependencies</h2>
+
+  {% if runtime.length %}
+    <p class="govuk-body govuk-!-margin-bottom-2">Tip: Click the <strong>Dependency</strong> or <strong>Severity</strong> headers to sort.</p>
+    <table class="govuk-table govuk-table--m">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header">
+            <a href="?sort=name&dir={% if sort == 'name' and dir == 'asc' %}desc{% else %}asc{% endif %}" title="Sort by Dependency">
+              Dependency
+              {% if sort == 'name' %}
+                {% if dir == 'asc' %}▲{% else %}▼{% endif %}
+              {% else %}
+                <span class="govuk-visually-hidden">sortable</span>
+              {% endif %}
+            </a>
+          </th>
+          <th class="govuk-table__header">Current Version</th>
+          <th class="govuk-table__header">Latest Version</th>
+          <th class="govuk-table__header">
+            <a href="?sort=severity&dir={% if sort == 'severity' and dir == 'asc' %}desc{% else %}asc{% endif %}" title="Sort by Severity">
+              Severity
+              {% if sort == 'severity' %}
+                {% if dir == 'asc' %}▲{% else %}▼{% endif %}
+              {% else %}
+                <span class="govuk-visually-hidden">sortable</span>
+              {% endif %}
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for dep in runtime %}
+        <tr class="govuk-table__row
+            {% if dep.severity == 'high' %} govuk-table__row--urgent
+            {% elif dep.severity == 'medium' %} govuk-table__row--warning
+            {% endif %}">
+          <td class="govuk-table__cell">{{ dep.name }}</td>
+          <td class="govuk-table__cell">{{ dep.current }}</td>
+          <td class="govuk-table__cell">{{ dep.latest }}</td>
+          <td class="govuk-table__cell">
+            <span class="govuk-tag govuk-tag--{{ dep.severity }}">{{ dep.severity | capitalize }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="govuk-body">No runtime updates</p>
+  {% endif %}
+
+  <h2 class="govuk-heading-l">Dev dependencies</h2>
+
+  {% if dev.length %}
+    <table class="govuk-table govuk-table--m">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header">Dependency</th>
+          <th class="govuk-table__header">Current Version</th>
+          <th class="govuk-table__header">Latest Version</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for dep in dev %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{ dep.name }}</td>
+          <td class="govuk-table__cell">{{ dep.current }}</td>
+          <td class="govuk-table__cell">{{ dep.latest }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="govuk-body">No dev dependency updates</p>
+  {% endif %}
+
+{% endblock %}

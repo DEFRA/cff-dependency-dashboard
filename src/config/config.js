@@ -48,7 +48,7 @@ export const config = convict({
   serviceName: {
     doc: 'Applications Service Name',
     format: String,
-    default: 'cff-dependency-dashboard'
+    default: 'CFF Dependency Dashboard'
   },
   root: {
     doc: 'Project root',
