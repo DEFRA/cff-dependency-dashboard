@@ -1,0 +1,103 @@
+{% extends "govuk/template.njk" %}
+
+{% set mainClasses = "app-main-wrapper" %}
+
+{% block head %}
+  <link href="{{ getAssetPath('stylesheets/application.scss') }}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+  {{ govukHeader({
+    homepageUrl: "https://www.gov.uk/",
+    classes: "app-header",
+    containerClasses: "govuk-width-container",
+    serviceName: serviceName,
+    serviceUrl: serviceUrl,
+    useTudorCrown: true
+  }) }}
+{% endblock %}
+
+{% block pageTitle %}
+  {% if pageTitle and pageTitle != serviceName %}{{ pageTitle }} - {% endif %}{{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+{% endblock %}
+
+{% block content %}  
+
+<div class="govuk-grid-row govuk-!-margin-bottom-6">
+  <div class="govuk-grid-column-full">
+
+    <h2 class="govuk-heading-l">Platform Dependency Health</h2>
+    <p><strong>Outdated dependencies:</strong> {{ stats.totalOutdated }}</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>🔴 High severity: {{ stats.high }}</li>
+      <li>🟠 Medium severity: {{ stats.medium }}</li>
+      <li>🟢 Low severity: {{ stats.low }}</li>
+    </ul>
+  </div>
+</div>
+
+<h2 class="govuk-heading-l">Node.js Version Overview</h2>
+<p><strong>Total repos reviewed:</strong> {{ repos.length }}</p>
+<table class="govuk-table govuk-table--m">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th class="govuk-table__header">Repo</th>
+      <th class="govuk-table__header">Current Version</th>
+      <th class="govuk-table__header">Latest LTS</th>
+      <th class="govuk-table__header">Severity</th>
+    </tr>
+  </thead>
+<tbody class="govuk-table__body">
+  {% for item in nodeResults %}
+  <tr class="govuk-table__row
+    {% if item.node.severity == 'high' %} govuk-table__row--urgent
+    {% elif item.node.severity == 'medium' %} govuk-table__row--warning
+    {% endif %}">
+    <td class="govuk-table__cell">
+      <a class="govuk-link" href="/html-dashboard/{{ item.repo }}">
+        <code>{{ item.repo }}</code>
+      </a>
+    </td>
+    <td class="govuk-table__cell"><code>{{ item.node.version }}</code></td>
+    <td class="govuk-table__cell"><code>{{ item.node.latestLts }}</code></td>
+    <td class="govuk-table__cell">
+      <span class="govuk-tag govuk-tag--{{ item.node.severity }}">{{ item.node.severity | capitalize }}</span>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+</table>
+
+
+{% endblock %}
+
+{% block footer %}
+  {{ govukFooter({
+    meta: {
+      items: [
+        {
+          href: "https://www.gov.uk/help/privacy-notice",
+          text: "Privacy"
+        },
+        {
+          href: "https://www.gov.uk/help/cookies",
+          text: "Cookies"
+        },
+        {
+          href: "https://www.gov.uk/help/accessibility",
+          text: "Accessibility statement"
+        }
+      ],
+      html: 'Built by the <a class="govuk-footer__link" href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs" target="_blank" rel="noopener noreferrer">
+            Department for Environment, Food & Rural Affairs
+          </a>'
+    }
+  }) }}
+{% endblock %}
+
+{% block bodyEnd %}
+  <script type="module" nonce="{{ nonce }}" src="{{ getAssetPath('application.js') }}"></script>
+{% endblock %}
