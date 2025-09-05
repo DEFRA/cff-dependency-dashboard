@@ -5,7 +5,7 @@ import semverDiff from 'semver-diff'
  * Normalises a version string for comparison.
  * Returns null if version is invalid.
  */
-export function normaliseVersion(version) {
+export function normaliseVersion (version) {
   if (!version || typeof version !== 'string') return null
   // strip leading 'v', trim spaces
   const cleaned = version.replace(/^[v^~]/, '').trim()
@@ -19,7 +19,7 @@ export function normaliseVersion(version) {
  * major -> high, minor -> medium, patch -> low
  * unknown for invalid versions or errors
  */
-export function getSeverity(current, latest) {
+export function getSeverity (current, latest) {
   try {
     const normCurrent = normaliseVersion(current)
     const normLatest = normaliseVersion(latest)

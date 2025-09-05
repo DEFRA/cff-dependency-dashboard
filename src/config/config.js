@@ -128,13 +128,13 @@ export const config = convict({
       format: Boolean,
       default: isDevelopment
     },
-  noCache: {
+    noCache: {
       doc: 'Use a cache and recompile templates each time',
       format: Boolean,
       default: isDevelopment
     }
   },
-    tracing: {
+  tracing: {
     header: {
       doc: 'Which header to track',
       format: String,
@@ -142,7 +142,7 @@ export const config = convict({
       env: 'TRACING_HEADER'
     }
   },
-   cookie: {
+  cookie: {
     name: {
       doc: 'The name of the cookie to set',
       format: String,

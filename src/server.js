@@ -17,7 +17,7 @@ import { requestLogger } from './common/helpers/logging/request-logger.js'
 import { secureContext } from './common/helpers/secure-context/secure-context.js'
 dotenv.config()
 
-export async function createServer() {
+export async function createServer () {
   setupProxy()
   const server = hapi.server({
     host: config.get('host'),

@@ -92,5 +92,22 @@
     "webpack": "5.99.9",
     "webpack-assets-manifest": "6.2.1",
     "webpack-cli": "6.0.1"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "beforeEach",
+      "expect",
+      "test",
+      "afterEach",
+      "jest",
+      "beforeAll",
+      "afterAll",
+      "$",
+      "XMLHttpRequest",
+      "dataLayer",
+      "it",
+      "vi"
+    ]
   }
 }

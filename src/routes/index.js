@@ -1,4 +1,4 @@
-import { getSummaryStats, getNodeVersionStats } from  '../lib/summary-stats.js'
+import { getSummaryStats, getNodeVersionStats } from '../lib/summary-stats.js'
 
 export const index = {
   method: 'GET',

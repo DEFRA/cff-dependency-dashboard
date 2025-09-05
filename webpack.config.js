@@ -62,7 +62,7 @@ export default {
         loader: 'source-map-loader',
         enforce: 'pre'
       },
-           {
+      {
         test: /\.scss$/,
         type: ruleTypeAssetResource,
         generator: {
