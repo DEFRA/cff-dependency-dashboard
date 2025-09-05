@@ -5,6 +5,7 @@ import CopyPlugin from 'copy-webpack-plugin'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
 import { WebpackAssetsManifest } from 'webpack-assets-manifest'
+import * as sass from 'sass'
 
 const { NODE_ENV = 'development' } = process.env
 
@@ -61,21 +62,7 @@ export default {
         loader: 'source-map-loader',
         enforce: 'pre'
       },
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-        options: {
-          browserslistEnv: 'javascripts',
-          cacheDirectory: true,
-          extends: path.join(dirname, 'babel.config.cjs'),
-          presets: [['@babel/preset-env']]
-        },
-
-        // Flag loaded modules as side effect free
-        sideEffects: false
-      },
-      {
+           {
         test: /\.scss$/,
         type: ruleTypeAssetResource,
         generator: {
@@ -90,6 +77,7 @@ export default {
           {
             loader: 'sass-loader',
             options: {
+              implementation: sass,
               sassOptions: {
                 loadPaths: [
                   path.join(dirname, 'src/client/stylesheets'),
