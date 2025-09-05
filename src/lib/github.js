@@ -1,13 +1,13 @@
-import dotenv from 'dotenv'
+import { config } from '../config/config.js'
 import { Octokit } from '@octokit/rest'
-dotenv.config()
 
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN })
+
+const octokit = new Octokit({ auth: config.get('github.token') })
 
 export async function getFileContent (repoName, filePath) {
   try {
     const { data } = await octokit.repos.getContent({
-      owner: process.env.GITHUB_OWNER,
+      owner: config.get('github.owner'),
       repo: repoName,
       path: filePath
     })

@@ -1,4 +1,3 @@
-// lib/dependencyUpdates.js
 import ncu from 'npm-check-updates'
 import { getFileContent } from './github.js'
 import { getSeverity } from './severity.js'

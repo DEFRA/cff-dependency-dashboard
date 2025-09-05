@@ -2,6 +2,8 @@ import convict from 'convict'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import convictFormatWithValidator from 'convict-format-with-validator'
+import 'dotenv/config' // auto-loads .env into process.env
+
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -195,7 +197,46 @@ export const config = convict({
       default: '',
       env: 'AUTH_OVERRIDE_FILE'
     }
+  },
+github: {
+    token: {
+      doc: 'GitHub personal access token',
+      format: String,
+      default: '',
+      env: 'GITHUB_TOKEN',
+      sensitive: true
+    },
+    owner: {
+      doc: 'GitHub owner/org',
+      format: String,
+      default: 'DEFRA',
+      env: 'GITHUB_OWNER'
+    },
+    repos: {
+      doc: 'Comma-separated list of repos',
+      format: String,
+      default: '',
+      env: 'GITHUB_REPOS'
+    }
+  },
+  node: {
+    latestLts: {
+      doc: 'Latest Node.js LTS version to compare against',
+      nullable : true,
+      format: String,
+      default: '',
+      env: 'LATEST_NODE_LTS'
+    }
+  },
+  npm: {
+    registryUrl: {
+      doc: 'NPM registry URL',
+      format: 'url',
+      default: 'https://registry.npmjs.org',
+      env: 'NPM_REGISTRY_URL'
+    }
   }
+
 })
 
 config.validate({ allowed: 'strict' })
