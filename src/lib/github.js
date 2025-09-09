@@ -1,7 +1,6 @@
 import { config } from '../config/config.js'
 import { Octokit } from '@octokit/rest'
 
-
 const octokit = new Octokit({ auth: config.get('github.token') })
 
 export async function getFileContent (repoName, filePath) {
@@ -26,11 +25,20 @@ export async function getFileContent (repoName, filePath) {
 }
 
 export async function getNodeVersion (repo, getFileContentFn = getFileContent) {
-  const nvmrc = await getFileContentFn(repo, '.nvmrc')
-  if (nvmrc) {
-    const version = nvmrc.trim()
-    if (/^\d+\.\d+\.\d+$/.test(version) || /^\d+$/.test(version)) return version
-    return version
+  try {
+    const nvmrc = await getFileContentFn(repo, '.nvmrc')
+    if (nvmrc) {
+      const version = nvmrc.trim()
+      if (/^\d+\.\d+\.\d+$/.test(version) || /^\d+$/.test(version)) {
+        return version
+      }
+      return version
+    }
+  } catch (err) {
+    // Gracefully handle "not found" (404) errors
+    if (err.status !== 404) {
+      throw err
+    }
   }
 
   try {
@@ -42,7 +50,9 @@ export async function getNodeVersion (repo, getFileContentFn = getFileContent) {
         return engine
       }
     }
-  } catch {}
+  } catch {
+    // ignore errors here, fallback below
+  }
 
   return 'unknown'
 }

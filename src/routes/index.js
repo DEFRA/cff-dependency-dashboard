@@ -1,5 +1,5 @@
 import { getSummaryStats, getNodeVersionStats } from '../lib/summary-stats.js'
-import { config } from '../config/config.js' 
+import { config } from '../config/config.js'
 
 export const index = {
   method: 'GET',

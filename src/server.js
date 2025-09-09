@@ -14,7 +14,6 @@ import { requestTracing } from './common/helpers/request-tracing.js'
 import { requestLogger } from './common/helpers/logging/request-logger.js'
 import { secureContext } from './common/helpers/secure-context/secure-context.js'
 
-
 export async function createServer () {
   setupProxy()
   const server = hapi.server({
