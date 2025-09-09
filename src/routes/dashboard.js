@@ -8,9 +8,9 @@ export const htmlDashboard = {
   handler: async (request, h) => {
     try {
       // Get list of repos from environment
-    const repos = config.get('github.repos')
-      ? config.get('github.repos').split(',').map(r => r.trim())
-      : []
+      const repos = config.get('github.repos')
+        ? config.get('github.repos').split(',').map(r => r.trim())
+        : []
 
       const repoName = request.params.repo
       const sort = request.query.sort || 'name'

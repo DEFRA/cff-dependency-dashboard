@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url'
 import convictFormatWithValidator from 'convict-format-with-validator'
 import 'dotenv/config'
 
-
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const oneWeekMs = 604800000
@@ -198,7 +197,7 @@ export const config = convict({
       env: 'AUTH_OVERRIDE_FILE'
     }
   },
-github: {
+  github: {
     token: {
       doc: 'GitHub personal access token',
       format: String,
@@ -222,7 +221,7 @@ github: {
   node: {
     latestLts: {
       doc: 'Latest Node.js LTS version to compare against',
-      nullable : true,
+      nullable: true,
       format: String,
       default: '',
       env: 'LATEST_NODE_LTS'
