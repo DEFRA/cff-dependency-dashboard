@@ -1,22 +1,26 @@
-import got from 'got'
-const versionRegex = /v(\d+)\.(\d+)\.(\d+)/
+import got from "got";
 
-export function calcVersion (x) {
-  const match = x.match(versionRegex)
-  if (!match) {
-    throw new Error(`version regex failed to match version string '${x}'`)
-  }
-  return (+match[1] * 1000000) + (+match[2] * 1000) + (+match[3])
+function calcVersion(version) {
+  const [major, minor, patch] = version.replace(/^v/, "").split(".").map(Number);
+  return major * 1e6 + minor * 1e3 + patch;
 }
 
-export async function getLatestLtsVersion () {
-  const data = await got('https://nodejs.org/download/release/index.json').json()
-  const lts = data.filter(item => item.lts)
+export async function getLatestLtsVersion() {
+  // Use GitHub API releases
+  const data = await got("https://api.github.com/repos/nodejs/node/releases", {
+    headers: {
+      "User-Agent": "cff-dependency-dashboard",
+    },
+  }).json();
+
+  // Filter only LTS releases (GitHub marks them with "LTS" in the release name)
+  const lts = data.filter(r => /LTS/i.test(r.name));
 
   lts.forEach(item => {
-    item.numVersion = calcVersion(item.version)
-  })
-  lts.sort((a, b) => b.numVersion - a.numVersion)
+    item.numVersion = calcVersion(item.tag_name);
+  });
 
-  return lts[0].version.replace(/^v/, '')
+  lts.sort((a, b) => b.numVersion - a.numVersion);
+
+  return lts[0].tag_name.replace(/^v/, "");
 }

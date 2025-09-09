@@ -2,7 +2,7 @@ import convict from 'convict'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import convictFormatWithValidator from 'convict-format-with-validator'
-import 'dotenv/config' // auto-loads .env into process.env
+import 'dotenv/config'
 
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
