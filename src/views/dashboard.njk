@@ -90,7 +90,14 @@
           <td class="govuk-table__cell">{{ dep.current }}</td>
           <td class="govuk-table__cell">{{ dep.latest }}</td>
           <td class="govuk-table__cell">
-            <span class="govuk-tag govuk-tag--{{ dep.severity }}">{{ dep.severity | capitalize }}</span>
+            <span class="govuk-tag
+              {% if dep.severity == 'high' %} govuk-tag--red
+              {% elif dep.severity == 'medium' %} govuk-tag--yellow
+              {% elif dep.severity == 'low' %} govuk-tag--green
+              {% else %} govuk-tag--blue
+              {% endif %}">
+              {{ dep.severity | capitalize }}
+            </span>
           </td>
         </tr>
         {% endfor %}
