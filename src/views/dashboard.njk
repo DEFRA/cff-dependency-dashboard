@@ -41,7 +41,14 @@
           <td class="govuk-table__cell"><code>{{ item.node.version }}</code></td>
           <td class="govuk-table__cell"><code>{{ item.node.latestLts }}</code></td>
           <td class="govuk-table__cell">
-            <span class="govuk-tag govuk-tag--{{ item.node.severity }}">{{ item.node.severity | capitalize }}</span>
+              <span class="govuk-tag
+              {% if item.node.severity == 'high' %} govuk-tag--red
+              {% elif item.node.severity == 'medium' %} govuk-tag--yellow
+              {% elif item.node.severity == 'low' %} govuk-tag--green
+              {% else %} govuk-tag--blue
+              {% endif %}">
+              {{ item.node.severity | capitalize }}
+              </span>
           </td>
         </tr>
         {% endif %}
@@ -90,7 +97,14 @@
           <td class="govuk-table__cell">{{ dep.current }}</td>
           <td class="govuk-table__cell">{{ dep.latest }}</td>
           <td class="govuk-table__cell">
-            <span class="govuk-tag govuk-tag--{{ dep.severity }}">{{ dep.severity | capitalize }}</span>
+            <span class="govuk-tag
+              {% if dep.severity == 'high' %} govuk-tag--red
+              {% elif dep.severity == 'medium' %} govuk-tag--yellow
+              {% elif dep.severity == 'low' %} govuk-tag--green
+              {% else %} govuk-tag--blue
+              {% endif %}">
+              {{ dep.severity | capitalize }}
+            </span>
           </td>
         </tr>
         {% endfor %}
