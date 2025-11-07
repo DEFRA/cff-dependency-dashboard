@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi, describe, beforeEach, beforeAll, test, expect } from 'vitest'
 
 const mockReadFileSync = vi.fn()
 const mockLoggerError = vi.fn()
@@ -11,30 +11,39 @@ vi.mock('node:fs', async () => {
     readFileSync: () => mockReadFileSync()
   }
 })
-vi.mock('../../../server/common/helpers/logging/logger.js', () => ({
+
+vi.mock('../../../../src/common/helpers/logging/logger.js', () => ({
   createLogger: () => ({ error: (...args) => mockLoggerError(...args) })
 }))
 
-describe('context and cache', () => {
+describe('Context and cache', () => {
   beforeEach(() => {
     mockReadFileSync.mockReset()
     mockLoggerError.mockReset()
     vi.resetModules()
   })
 
-  describe('#context', () => {
-    const mockRequest = { path: '/' }
+  describe('Context', () => {
+    const mockRequest = {
+      path: '/',
+      response: {
+        source: {
+          context: {}
+        }
+      }
+    }
 
     describe('When webpack manifest file read succeeds', () => {
       let contextImport
       let contextResult
 
       beforeAll(async () => {
-        contextImport = await import('./context.js')
+        contextImport = await import(
+          '../../../../src/config/nunjucks/context.js'
+        )
       })
 
       beforeEach(() => {
-        // Return JSON string
         mockReadFileSync.mockReturnValue(`{
         "application.js": "javascripts/application.js",
         "stylesheets/application.scss": "stylesheets/application.css"
@@ -45,22 +54,10 @@ describe('context and cache', () => {
 
       test('Should provide expected context', () => {
         expect(contextResult).toEqual({
-          assetPath: '/public/assets',
+          assetPath: '/public/assets/rebrand',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
-          navigation: [
-            {
-              current: true,
-              text: 'Home',
-              href: '/'
-            },
-            {
-              current: false,
-              text: 'About',
-              href: '/about'
-            }
-          ],
-          serviceName: 'cff-dependency-dashboard',
+          serviceName: 'CFF Dependency Dashboard',
           serviceUrl: '/'
         })
       })
@@ -80,18 +77,47 @@ describe('context and cache', () => {
           )
         })
       })
+
+      describe('With existing context', () => {
+        test('Should preserve existing context properties', () => {
+          const mockRequestWithContext = {
+            path: '/',
+            response: {
+              source: {
+                context: {
+                  pageTitle: 'Custom Page Title',
+                  customProperty: 'existing value'
+                }
+              }
+            }
+          }
+
+          const result = contextImport.context(mockRequestWithContext)
+
+          expect(result).toEqual({
+            pageTitle: 'Custom Page Title',
+            customProperty: 'existing value',
+            assetPath: '/public/assets/rebrand',
+            breadcrumbs: [],
+            getAssetPath: expect.any(Function),
+            serviceName: 'CFF Dependency Dashboard',
+            serviceUrl: '/'
+          })
+        })
+      })
     })
 
     describe('When webpack manifest file read fails', () => {
       let contextImport
 
       beforeAll(async () => {
-        contextImport = await import('./context.js')
+        contextImport = await import(
+          '../../../../src/config/nunjucks/context.js'
+        )
       })
 
       beforeEach(() => {
         mockReadFileSync.mockReturnValue(new Error('File not found'))
-
         contextImport.context(mockRequest)
       })
 
@@ -103,19 +129,27 @@ describe('context and cache', () => {
     })
   })
 
-  describe('#context cache', () => {
-    const mockRequest = { path: '/' }
+  describe('Context cache', () => {
+    const mockRequest = {
+      path: '/',
+      response: {
+        source: {
+          context: {}
+        }
+      }
+    }
     let contextResult
 
     describe('Webpack manifest file cache', () => {
       let contextImport
 
       beforeAll(async () => {
-        contextImport = await import('./context.js')
+        contextImport = await import(
+          '../../../../src/config/nunjucks/context.js'
+        )
       })
 
       beforeEach(() => {
-        // Return JSON string
         mockReadFileSync.mockReturnValue(`{
         "application.js": "javascripts/application.js",
         "stylesheets/application.scss": "stylesheets/application.css"
@@ -134,22 +168,10 @@ describe('context and cache', () => {
 
       test('Should provide expected context', () => {
         expect(contextResult).toEqual({
-          assetPath: '/public/assets',
+          assetPath: '/public/assets/rebrand',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
-          navigation: [
-            {
-              current: true,
-              text: 'Home',
-              href: '/'
-            },
-            {
-              current: false,
-              text: 'About',
-              href: '/about'
-            }
-          ],
-          serviceName: 'cff-dependency-dashboard',
+          serviceName: 'CFF Dependency Dashboard',
           serviceUrl: '/'
         })
       })
