@@ -25,7 +25,7 @@ export function normaliseVersion (version) {
   if (parts.length === 2) return `${parts[0]}.${parts[1]}.0${suffix}` // "20.1" -> "20.1.0"
   if (parts.length === 3) return found // already "x.y.z" (preserves suffix)
 
-  return null 
+  return null
 }
 
 export function getSeverity (current, latest) {
