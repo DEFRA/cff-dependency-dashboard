@@ -1,9 +1,9 @@
 import { config } from '../config/config.js'
 import { Octokit } from '@octokit/rest'
-
-const octokit = new Octokit({ auth: config.get('github.token') })
-
-export async function getFileContent (repoName, filePath) {
+export function getOctokit () {
+  return new Octokit({ auth: config.get('github.token') })
+}
+export async function getFileContent (repoName, filePath, octokit = getOctokit()) {
   try {
     const { data } = await octokit.repos.getContent({
       owner: config.get('github.owner'),
