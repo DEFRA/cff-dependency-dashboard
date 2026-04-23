@@ -1,11 +1,11 @@
-import ncu from 'npm-check-updates'
+import { run as runNcu } from 'npm-check-updates'
 import { getFileContent } from './github.js'
 import { getSeverity } from './severity.js'
 
 export async function getRepoDependencyUpdates (repoName) {
   try {
     const pkg = await getFileContent(repoName, 'package.json')
-    const updates = await ncu.run({ packageData: JSON.stringify(pkg) })
+    const updates = await runNcu({ packageData: JSON.stringify(pkg) })
 
     const runtime = []
     const dev = []

@@ -1,4 +1,3 @@
-version: '3'
 services:
   cff-dependency-dashboard:
     build:
@@ -10,4 +9,5 @@ services:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json
     env_file:
-      - .env
+      - path: .env
+        required: false
