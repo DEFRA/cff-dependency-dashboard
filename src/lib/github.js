@@ -3,6 +3,21 @@ import { Octokit } from '@octokit/rest'
 export function getOctokit () {
   return new Octokit({ auth: config.get('github.token') })
 }
+
+export async function listPublicRepos (owner = config.get('github.owner'), octokit = getOctokit()) {
+  const repos = await octokit.paginate(octokit.repos.listForOrg, {
+    org: owner,
+    type: 'public',
+    per_page: 100
+  })
+
+  return repos
+     .filter(repo => !repo.archived)
+    .map(repo => repo.name)
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b))
+}
+
 export async function getFileContent (repoName, filePath, octokit = getOctokit()) {
   try {
     const { data } = await octokit.repos.getContent({

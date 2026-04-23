@@ -12,24 +12,24 @@ vi.mock('../../../../src/lib/sort-deps.js', () => ({
   sortDeps: vi.fn()
 }))
 
-vi.mock('../../../../src/config/config.js', () => ({
-  config: { get: vi.fn() }
+vi.mock('../../../../src/lib/repo-source.js', () => ({
+  getResolvedRepos: vi.fn()
 }))
 
 const { getRepoDependencyUpdates } = await import('../../../../src/lib/dependency-updates.js')
 const { getNodeVersionStats } = await import('../../../../src/lib/summary-stats.js')
 const { sortDeps } = await import('../../../../src/lib/sort-deps.js')
-const { config } = await import('../../../../src/config/config.js')
+const { getResolvedRepos } = await import('../../../../src/lib/repo-source.js')
 
 const { htmlDashboard } = await import('../../../../src/routes/dashboard.js')
 
 describe('htmlDashboard route handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // default repos returned from config
-    config.get.mockImplementation((key) => {
-      if (key === 'github.repos') return 'repo1,repo2'
-      return undefined
+    getResolvedRepos.mockReturnValue({
+      repos: ['repo1', 'repo2'],
+      isCustomMode: false,
+      repoQueryString: ''
     })
   })
 
@@ -64,6 +64,7 @@ describe('htmlDashboard route handler', () => {
 
     await htmlDashboard.handler(request, h)
 
+    expect(getResolvedRepos).toHaveBeenCalledWith({ sort: 'name', dir: 'desc' })
     expect(getRepoDependencyUpdates).toHaveBeenCalledWith('repo1')
     expect(getNodeVersionStats).toHaveBeenCalledWith(repos)
     expect(sortDeps).toHaveBeenCalledWith(fakeRuntime, 'name', 'desc')
@@ -78,6 +79,7 @@ describe('htmlDashboard route handler', () => {
     expect(ctx.repos).toEqual(repos)
     expect(ctx.nodeResults).toBe(nodeResults)
     expect(ctx.sort).toBe('name')
+    expect(ctx.dir).toBe('desc')
   })
   it('renders dashboard for all repos when no repo param provided (defaults)', async () => {
     getRepoDependencyUpdates.mockResolvedValue({ runtime: [], dev: [] })
@@ -103,6 +105,36 @@ describe('htmlDashboard route handler', () => {
     const [, ctx] = viewMock.mock.calls[0]
     expect(ctx.repo).toBe('All Repos')
     expect(ctx.sort).toBe('name') // default sort
+    expect(ctx.dir).toBe('asc')
+  })
+
+  it('propagates custom mode metadata to the dashboard view', async () => {
+    getResolvedRepos.mockReturnValue({
+      repos: ['custom-repo'],
+      isCustomMode: true,
+      repoQueryString: 'repos=custom-repo'
+    })
+
+    getRepoDependencyUpdates.mockResolvedValue({ runtime: [], dev: [] })
+    sortDeps.mockImplementation((arr) => arr)
+    getNodeVersionStats.mockResolvedValue([])
+
+    const request = {
+      params: { repo: 'custom-repo' },
+      query: { repos: 'custom-repo' }
+    }
+
+    const viewMock = vi.fn()
+    const h = {
+      view: viewMock,
+      response: vi.fn()
+    }
+
+    await htmlDashboard.handler(request, h)
+
+    const [, ctx] = viewMock.mock.calls[0]
+    expect(ctx.isCustomMode).toBe(true)
+    expect(ctx.repoQueryString).toBe('repos=custom-repo')
   })
 
   it('returns 500 when dependency fetch throws', async () => {

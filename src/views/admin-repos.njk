@@ -1,0 +1,90 @@
+{% extends 'layouts.njk' %}
+
+{% block title %}Repository Source Admin{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">Repository Source Admin</h1>
+
+  <p class="govuk-body">The dashboard defaults to the Flood repository list every time it is opened directly.</p>
+
+  <h2 class="govuk-heading-m">Default Flood repositories</h2>
+  <p class="govuk-body">
+    {% if defaultRepos.length %}
+      <code>{{ defaultReposText }}</code>
+    {% else %}
+      No default repositories configured.
+    {% endif %}
+  </p>
+
+  <p class="govuk-body">
+    <a class="govuk-link" href="/">Open dashboard with defaults</a>
+  </p>
+
+  <h2 class="govuk-heading-m">Run with custom repositories</h2>
+
+  {% if loadError %}
+    <div class="govuk-inset-text">{{ loadError }}</div>
+  {% endif %}
+
+  <form method="GET" action="/" class="govuk-!-margin-bottom-6">
+    {% if availableRepos.length %}
+      <div class="govuk-form-group govuk-!-margin-bottom-6">
+        <label class="govuk-label" for="availableRepoSelect">
+          <strong>Add from {{ githubOwner }} public repositories</strong>
+        </label>
+        <p class="govuk-body govuk-!-margin-top-2 govuk-!-margin-bottom-3">Select a repository and it will be added to your list below.</p>
+        <select class="govuk-select" id="availableRepoSelect" name="availableRepoSelect">
+          <option value="">-- Select a repository --</option>
+          {% for repoName in availableRepos %}
+            <option value="{{ repoName }}">{{ repoName }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="repos">
+        <strong>Your repositories</strong>
+      </label>
+      <p class="govuk-body govuk-!-margin-top-2 govuk-!-margin-bottom-3">
+        Enter repository names separated by commas or newlines. Repositories will be automatically deduplicated.
+      </p>
+      <textarea class="govuk-textarea" id="repos" name="repos" rows="8" placeholder="e.g. repo1, repo2&#10;repo3">{{ currentCustomRepos | join(', ') }}</textarea>
+    </div>
+
+    <div class="govuk-button-group">
+      <button class="govuk-button" data-module="govuk-button" type="submit">Run custom dashboard</button>
+      <a class="govuk-link" href="/">View default dashboard</a>
+    </div>
+  </form>
+
+  <script type="module">
+    const dropdown = document.getElementById('availableRepoSelect');
+    const textarea = document.getElementById('repos');
+
+    if (dropdown && textarea) {
+      dropdown.addEventListener('change', function() {
+        if (this.value) {
+          const currentValue = textarea.value.trim();
+          const newRepo = this.value;
+          
+          // Check if repo already exists
+          const existingRepos = currentValue
+            .split(/[\n,]/)
+            .map(r => r.trim())
+            .filter(r => r && r.toLowerCase() !== newRepo.toLowerCase());
+          
+          // Add new repo
+          existingRepos.push(newRepo);
+          
+          // Update textarea
+          textarea.value = existingRepos.join(', ');
+          textarea.focus();
+          
+          // Reset dropdown
+          this.value = '';
+        }
+      });
+    }
+  </script>
+{% endblock %}

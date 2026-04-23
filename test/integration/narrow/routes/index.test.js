@@ -5,20 +5,21 @@ vi.mock('../../../../src/lib/summary-stats.js', () => ({
   getNodeVersionStats: vi.fn()
 }))
 
-vi.mock('../../../../src/config/config.js', () => ({
-  config: { get: vi.fn() }
+vi.mock('../../../../src/lib/repo-source.js', () => ({
+  getResolvedRepos: vi.fn()
 }))
 
 const { getSummaryStats, getNodeVersionStats } = await import('../../../../src/lib/summary-stats.js')
-const { config } = await import('../../../../src/config/config.js')
+const { getResolvedRepos } = await import('../../../../src/lib/repo-source.js')
 const { index } = await import('../../../../src/routes/index.js')
 
 describe('index route handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    config.get.mockImplementation((key) => {
-      if (key === 'github.repos') return 'repo1,repo2'
-      return undefined
+    getResolvedRepos.mockReturnValue({
+      repos: ['repo1', 'repo2'],
+      isCustomMode: false,
+      repoQueryString: ''
     })
   })
 
@@ -34,12 +35,13 @@ describe('index route handler', () => {
     getSummaryStats.mockResolvedValue(fakeStats)
     getNodeVersionStats.mockResolvedValue(fakeNode)
 
-    const request = {}
+    const request = { query: {} }
     const viewMock = vi.fn()
     const h = { view: viewMock }
 
     await index.handler(request, h)
 
+    expect(getResolvedRepos).toHaveBeenCalledWith({})
     expect(getNodeVersionStats).toHaveBeenCalledWith(repos)
     expect(getSummaryStats).toHaveBeenCalledWith(repos)
     expect(viewMock).toHaveBeenCalledTimes(1)
@@ -48,17 +50,24 @@ describe('index route handler', () => {
     expect(ctx.repos).toEqual(repos)
     expect(ctx.stats).toBe(fakeStats)
     expect(ctx.nodeResults).toBe(fakeNode)
+    expect(ctx.isCustomMode).toBe(false)
+    expect(ctx.repoQueryString).toBe('')
   })
 
-  it('renders index view with empty repos array when no github.repos configured', async () => {
-    config.get.mockImplementation(() => undefined)
+  it('renders index view with empty repos array when resolver returns none', async () => {
+    getResolvedRepos.mockReturnValue({
+      repos: [],
+      isCustomMode: false,
+      repoQueryString: ''
+    })
+
     const fakeStats = {}
     const fakeNode = {}
 
     getSummaryStats.mockResolvedValue(fakeStats)
     getNodeVersionStats.mockResolvedValue(fakeNode)
 
-    const request = {}
+    const request = { query: {} }
     const viewMock = vi.fn()
     const h = { view: viewMock }
 
@@ -70,6 +79,27 @@ describe('index route handler', () => {
     expect(ctx.repos).toEqual([])
     expect(ctx.stats).toBe(fakeStats)
     expect(ctx.nodeResults).toBe(fakeNode)
+  })
+
+  it('passes custom mode metadata to the view when custom repos are selected', async () => {
+    getResolvedRepos.mockReturnValue({
+      repos: ['custom-a', 'custom-b'],
+      isCustomMode: true,
+      repoQueryString: 'repos=custom-a%2Ccustom-b'
+    })
+
+    getSummaryStats.mockResolvedValue({})
+    getNodeVersionStats.mockResolvedValue([])
+
+    const request = { query: { repos: 'custom-a,custom-b' } }
+    const viewMock = vi.fn()
+    const h = { view: viewMock }
+
+    await index.handler(request, h)
+
+    const [, ctx] = viewMock.mock.calls[0]
+    expect(ctx.isCustomMode).toBe(true)
+    expect(ctx.repoQueryString).toBe('repos=custom-a%2Ccustom-b')
   })
 
   it('propagates errors from summary-stats', async () => {
