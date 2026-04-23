@@ -2,6 +2,7 @@ import Inert from '@hapi/inert'
 import { health } from '../routes/health.js'
 import { index } from '../routes/index.js'
 import { htmlDashboard } from '../routes/dashboard.js'
+import { adminRepos } from '../routes/admin-repos.js'
 import { serveStaticFiles } from '../common/helpers/serve-static-files.js'
 
 export const router = {
@@ -12,6 +13,7 @@ export const router = {
       await server.route(health)
       await server.route(index)
       await server.route(htmlDashboard)
+      await server.route(adminRepos)
       await server.register([serveStaticFiles])
     }
   }

@@ -1,0 +1,5 @@
+services:
+  cff-dependency-dashboard:
+    command: npm test
+    volumes:
+      - ./coverage:/home/node/coverage

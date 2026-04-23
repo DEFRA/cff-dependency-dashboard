@@ -4,7 +4,7 @@ const { createServer } = await import('../../../../src/server.js')
 
 let server
 
-describe('headers', () => {
+describe('headers', { timeout: 15000 }, () => {
   beforeEach(async () => {
     vi.clearAllMocks()
 

@@ -5,6 +5,20 @@
 {% block content %}
   <h1 class="govuk-heading-xl">Dependency Dashboard for <strong>{{ repo }}</strong></h1>
 
+  <p class="govuk-body govuk-!-margin-bottom-2">
+    <strong>Repository source:</strong>
+    {% if isCustomMode %}
+      Custom selection
+    {% else %}
+      Flood defaults
+    {% endif %}
+  </p>
+  <p class="govuk-body govuk-!-margin-bottom-6">
+    <a class="govuk-link" href="/{% if repoQueryString %}?{{ repoQueryString }}{% endif %}">Back to overview</a>
+    |
+    <a class="govuk-link" href="/admin/repos{% if repoQueryString %}?{{ repoQueryString }}{% endif %}">Manage repository source</a>
+  </p>
+
   <!-- Breadcrumbs -->
 <nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
   <ol class="govuk-breadcrumbs__list">
@@ -64,7 +78,7 @@
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
           <th class="govuk-table__header">
-            <a href="?sort=name&dir={% if sort == 'name' and dir == 'asc' %}desc{% else %}asc{% endif %}" title="Sort by Dependency">
+            <a href="?sort=name&dir={% if sort == 'name' and dir == 'asc' %}desc{% else %}asc{% endif %}{% if repoQueryString %}&{{ repoQueryString }}{% endif %}" title="Sort by Dependency">
               Dependency
               {% if sort == 'name' %}
                 {% if dir == 'asc' %}▲{% else %}▼{% endif %}
@@ -76,7 +90,7 @@
           <th class="govuk-table__header">Current Version</th>
           <th class="govuk-table__header">Latest Version</th>
           <th class="govuk-table__header">
-            <a href="?sort=severity&dir={% if sort == 'severity' and dir == 'asc' %}desc{% else %}asc{% endif %}" title="Sort by Severity">
+            <a href="?sort=severity&dir={% if sort == 'severity' and dir == 'asc' %}desc{% else %}asc{% endif %}{% if repoQueryString %}&{{ repoQueryString }}{% endif %}" title="Sort by Severity">
               Severity
               {% if sort == 'severity' %}
                 {% if dir == 'asc' %}▲{% else %}▼{% endif %}

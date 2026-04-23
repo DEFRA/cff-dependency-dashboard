@@ -26,6 +26,18 @@
 
 {% block content %}  
 
+<p class="govuk-body govuk-!-margin-bottom-2">
+  <strong>Repository source:</strong>
+  {% if isCustomMode %}
+    Custom selection
+  {% else %}
+    Flood defaults
+  {% endif %}
+</p>
+<p class="govuk-body govuk-!-margin-bottom-6">
+  <a class="govuk-link" href="/admin/repos{% if repoQueryString %}?{{ repoQueryString }}{% endif %}">Manage repository source</a>
+</p>
+
 <div class="govuk-grid-row govuk-!-margin-bottom-6">
   <div class="govuk-grid-column-full">
 
@@ -57,7 +69,7 @@
     {% elif item.node.severity == 'medium' %} govuk-table__row--warning
     {% endif %}">
     <td class="govuk-table__cell">
-      <a class="govuk-link" href="/html-dashboard/{{ item.repo }}">
+      <a class="govuk-link" href="/html-dashboard/{{ item.repo }}{% if repoQueryString %}?{{ repoQueryString }}{% endif %}">
         <code>{{ item.repo }}</code>
       </a>
     </td>
